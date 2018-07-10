@@ -5,7 +5,7 @@ const {ObjectID}=require('mongodb');
 
 var {mongoose}=require('./db/mongoose.js');
 var {Todo} = require('./models/todo.js');
-var {User}=require('./models/user');
+var {User}=require('./models/user.js');
 
 
 //var Todo = mongoose.model('Todo', schemaP);
@@ -99,6 +99,20 @@ app.patch('/todos/:id', (req, res)=>{
 
   }).catch((e)=>{
     res.status(400).send();
+  })
+});
+
+app.post('/users', (req, res)=>{
+  var body=_.pick(req.body, ['email', 'password']);
+  var user = new User(body);
+
+  user.save().then(()=>{
+    return user.generateAuthToken();
+    //res.send(user);
+  }).then((token)=>{
+    res.header('x-auth', token).send(user);
+  }).catch((e)=>{
+    res.status(400).send(e);
   })
 });
 
